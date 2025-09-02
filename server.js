@@ -16,8 +16,7 @@ dotenv.config();
 const app = express();
 app.use(cors({
   origin: [
-    "http://localhost:5173",
-    "" 
+    "http://localhost:5173"
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -33,12 +32,12 @@ mongoose.connect(process.env.MONGO_URI)
 
 // routes
 app.use("/api/auth", authRoutes);
-app.use("/api/profile", verifyToken, profileRoutes);
-app.use("/api/experience", verifyToken, experienceRoutes);
-app.use("/api/education", verifyToken, educationRoutes);
-app.use("/api/skills", verifyToken, skillsRoutes);
-app.use("/api/projects", verifyToken, projectsRoutes);
-app.use("/api/achievements", verifyToken, achievementsRoutes);
+app.use("/api/profile", profileRoutes(verifyToken));
+app.use("/api/experience",experienceRoutes(verifyToken));
+app.use("/api/education", educationRoutes(verifyToken));
+app.use("/api/skills", skillsRoutes(verifyToken));
+app.use("/api/projects", projectsRoutes(verifyToken));
+app.use("/api/achievements", achievementsRoutes(verifyToken));
 
 app.get("/", (req, res) => res.send("3D Portfolio API running"));
 
