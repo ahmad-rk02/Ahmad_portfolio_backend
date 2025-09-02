@@ -3,20 +3,20 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 
-import authRoutes from "../routes/auth.js";
-import profileRoutes from "../routes/profile.js";
-import experienceRoutes from "../routes/experience.js";
-import educationRoutes from "../routes/education.js";
-import skillsRoutes from "../routes/skills.js";
-import projectsRoutes from "../routes/projects.js";
-import achievementsRoutes from "../routes/achievements.js";
-import verifyToken from "../middleware/auth.js";
+import authRoutes from "./routes/auth.js";
+import profileRoutes from "./routes/profile.js";
+import experienceRoutes from "./routes/experience.js";      
+import educationRoutes from "./routes/education.js";
+import skillsRoutes from "./routes/skills.js";
+import projectsRoutes from "./routes/projects.js";
+import achievementsRoutes from "./routes/achievements.js";
+import verifyToken from "./middleware/auth.js";
 
 dotenv.config();
 const app = express();
 app.use(cors({
   origin: [
-    "http://localhost:5000",
+    "http://localhost:5173",
     "" 
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
