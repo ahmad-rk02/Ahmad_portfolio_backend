@@ -1,20 +1,8 @@
 import express from "express";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
 import Project from "../models/Project.js";
+import { uploadProjects } from "../middleware/upload.js";
 
-const UPLOAD_DIR = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
-});
-
-const upload = multer({ storage });
-
-export default function(verifyToken) {
+export default function (verifyToken) {
   const router = express.Router();
 
   // GET all projects
@@ -28,21 +16,21 @@ export default function(verifyToken) {
   });
 
   // CREATE project
-  router.post("/", verifyToken, upload.array("files", 10), async (req, res) => {
+  router.post("/", verifyToken, uploadProjects.array("files", 10), async (req, res) => {
     try {
       const { title, description, link, tech } = req.body;
       const techArr = typeof tech === "string"
         ? tech.split(",").map(s => s.trim()).filter(Boolean)
         : (tech || []);
 
-      const files = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
+      const files = req.files ? req.files.map(f => f.path) : []; // Cloudinary URLs
       const item = new Project({
         title,
         description,
         link,
         tech: techArr,
         image: files[0] || "",
-        files
+        files,
       });
 
       await item.save();
@@ -53,7 +41,7 @@ export default function(verifyToken) {
   });
 
   // UPDATE project
-  router.put("/:id", verifyToken, upload.array("files", 10), async (req, res) => {
+  router.put("/:id", verifyToken, uploadProjects.array("files", 10), async (req, res) => {
     try {
       const payload = { ...req.body };
 
@@ -62,15 +50,7 @@ export default function(verifyToken) {
       }
 
       if (req.files && req.files.length > 0) {
-        const oldProject = await Project.findById(req.params.id);
-        if (oldProject?.files?.length > 0) {
-          oldProject.files.forEach(f => {
-            const oldPath = path.join(process.cwd(), f);
-            if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-          });
-        }
-
-        const files = req.files.map(f => `/uploads/${f.filename}`);
+        const files = req.files.map(f => f.path); // Cloudinary URLs
         payload.files = files;
         payload.image = files[0];
       }
@@ -85,14 +65,6 @@ export default function(verifyToken) {
   // DELETE project
   router.delete("/:id", verifyToken, async (req, res) => {
     try {
-      const project = await Project.findById(req.params.id);
-      if (project?.files?.length > 0) {
-        project.files.forEach(f => {
-          const filePath = path.join(process.cwd(), f);
-          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-        });
-      }
-
       await Project.findByIdAndDelete(req.params.id);
       res.json({ message: "Deleted" });
     } catch (err) {
