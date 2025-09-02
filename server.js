@@ -14,14 +14,16 @@ import verifyToken from "./middleware/auth.js";
 
 dotenv.config();
 const app = express();
-app.use(cors({
-  origin: [
-    "http://localhost:5173"
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
-}));
+// app.use(cors({
+//   origin: [
+//     "http://localhost:5173"
+//   ],
+//   methods: ["GET", "POST", "PUT", "DELETE"],
+//   allowedHeaders: ["Content-Type", "Authorization"],
+//   credentials: true
+// }));
+app.use(cors());
+
 
 app.use(express.json());
 
