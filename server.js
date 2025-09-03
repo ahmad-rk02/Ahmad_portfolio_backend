@@ -1,4 +1,4 @@
- import express from "express";
+import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -16,8 +16,26 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// ✅ CORS setup
+const allowedOrigins = [
+  "http://localhost:5173",                // local dev
+  "https://your-frontend.vercel.app"      // replace with your deployed frontend URL
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow requests with no origin (Postman, curl)
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // ✅ Connect DB before handling requests
@@ -69,23 +87,3 @@ if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-// app.use(cors({
-//   origin: [
-//     "http://localhost:5173"
-//   ],
-//   methods: ["GET", "POST", "PUT", "DELETE"],
-//   allowedHeaders: ["Content-Type", "Authorization"],
-//   credentials: true
-// }));
