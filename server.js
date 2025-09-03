@@ -18,17 +18,26 @@ const app = express();
 
 // ✅ CORS setup
 const allowedOrigins = [
-  "http://localhost:5173",                // local dev
-  "https://your-frontend.vercel.app"      // replace with your deployed frontend URL
+  "http://localhost:5173",                          // local dev
+  "https://your-frontend.vercel.app"                // deployed frontend (replace this!)
 ];
 
-
-app.use(cors({
-  origin: ["http://localhost:5173", "https://your-frontend.vercel.app"],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (like curl, postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
@@ -54,12 +63,11 @@ connectDB();
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", verifyToken, profileRoutes);
- app.use("/api/experience", verifyToken, experienceRoutes);
+app.use("/api/experience", verifyToken, experienceRoutes);
 app.use("/api/education", verifyToken, educationRoutes);
 app.use("/api/skills", verifyToken, skillsRoutes);
 app.use("/api/projects", verifyToken, projectsRoutes);
 app.use("/api/achievements", verifyToken, achievementsRoutes);
-
 
 // Health check
 app.get("/", (req, res) => res.send("3D Portfolio API running 🚀"));
@@ -70,7 +78,9 @@ app.get("/api/dbcheck", async (req, res) => {
     await mongoose.connection.db.admin().ping();
     res.json({ status: "✅ MongoDB connected" });
   } catch (err) {
-    res.status(500).json({ status: "❌ MongoDB not connected", error: err.message });
+    res
+      .status(500)
+      .json({ status: "❌ MongoDB not connected", error: err.message });
   }
 });
 
