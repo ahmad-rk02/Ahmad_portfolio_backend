@@ -22,22 +22,20 @@ app.use(express.json());
 
 // ✅ Connect DB before handling requests
 const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) {
-    return; // already connected
-  }
   try {
+    console.log("🔍 Trying to connect to MongoDB...");
+    console.log("MONGO_URI:", process.env.MONGO_URI ? "Loaded ✅" : "Not Found ❌");
+
     await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log("✅ MongoDB connected");
+
+    console.log("✅ MongoDB connected successfully");
   } catch (err) {
-    console.error("❌ MongoDB error:", err.message);
+    console.error("❌ MongoDB connection failed:", err.message);
   }
 };
-
-await connectDB(); // force connect at cold start
-
 
 connectDB();
 
@@ -56,16 +54,12 @@ app.get("/", (req, res) => res.send("3D Portfolio API running 🚀"));
 // Extra DB check endpoint (for testing on Vercel)
 app.get("/api/dbcheck", async (req, res) => {
   try {
-    if (mongoose.connection.readyState === 1) {
-      return res.json({ status: "✅ MongoDB connected" });
-    } else {
-      return res.status(500).json({ status: "❌ MongoDB not connected" });
-    }
+    await mongoose.connection.db.admin().ping();
+    res.json({ status: "✅ MongoDB connected" });
   } catch (err) {
-    res.status(500).json({ status: "❌ Error", error: err.message });
+    res.status(500).json({ status: "❌ MongoDB not connected", error: err.message });
   }
 });
-
 
 // Export for Vercel
 export default app;
