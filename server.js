@@ -22,15 +22,9 @@ const allowedOrigins = [
   "https://your-frontend.vercel.app"      // replace with your deployed frontend URL
 ];
 
+
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // allow requests with no origin (Postman, curl)
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: ["http://localhost:5173", "https://your-frontend.vercel.app"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
@@ -59,12 +53,13 @@ connectDB();
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/profile", profileRoutes(verifyToken));
-app.use("/api/experience", experienceRoutes(verifyToken));
-app.use("/api/education", educationRoutes(verifyToken));
-app.use("/api/skills", skillsRoutes(verifyToken));
-app.use("/api/projects", projectsRoutes(verifyToken));
-app.use("/api/achievements", achievementsRoutes(verifyToken));
+app.use("/api/profile", verifyToken, profileRoutes);
+ app.use("/api/experience", verifyToken, experienceRoutes);
+app.use("/api/education", verifyToken, educationRoutes);
+app.use("/api/skills", verifyToken, skillsRoutes);
+app.use("/api/projects", verifyToken, projectsRoutes);
+app.use("/api/achievements", verifyToken, achievementsRoutes);
+
 
 // Health check
 app.get("/", (req, res) => res.send("3D Portfolio API running 🚀"));
