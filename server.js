@@ -16,23 +16,31 @@ dotenv.config();
 
 const app = express();
 
-// ✅ CORS setup
+// CORS setup
 const allowedOrigins = [
-  "http://localhost:5173",               
+  "http://localhost:5173",
+  // Add your frontend's deployed URL here when available, e.g., "https://your-frontend.vercel.app"
 ];
 
-
 app.use(cors({
-  origin: "http://localhost:5173",
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 
+// Handle CORS preflight requests
+app.options("*", cors());
 
 app.use(express.json());
 
-// ✅ Connect DB before handling requests
+// Connect DB before handling requests
 const connectDB = async () => {
   try {
     console.log("🔍 Trying to connect to MongoDB...");
@@ -53,7 +61,7 @@ connectDB();
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/profile", profileRoutes);
+app.use("/api/profile", profileRoutes(verifyToken));
 app.use("/api/experience", experienceRoutes(verifyToken));
 app.use("/api/education", educationRoutes(verifyToken));
 app.use("/api/skills", skillsRoutes(verifyToken));
