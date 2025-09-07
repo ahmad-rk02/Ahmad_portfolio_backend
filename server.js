@@ -53,7 +53,7 @@ connectDB();
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/profile", profileRoutes(verifyToken));
+app.use("/api/profile", profileRoutes);
 app.use("/api/experience", experienceRoutes(verifyToken));
 app.use("/api/education", educationRoutes(verifyToken));
 app.use("/api/skills", skillsRoutes(verifyToken));
