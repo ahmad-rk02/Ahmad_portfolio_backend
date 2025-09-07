@@ -5,7 +5,6 @@ import { uploadAvatar } from "../middleware/upload.js";
 export default function (verifyToken) {
   const router = express.Router();
 
-  // Public GET route (no authentication required)
   router.get("/", async (req, res) => {
     try {
       const profile = await Profile.findOne().sort({ updatedAt: -1 });
@@ -15,7 +14,6 @@ export default function (verifyToken) {
     }
   });
 
-  // Protected routes (require authentication)
   router.post("/", verifyToken, uploadAvatar.single("avatarFile"), async (req, res) => {
     try {
       const payload = req.body;
