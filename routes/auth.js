@@ -41,7 +41,7 @@ const sendOTP = async (email, otp) => {
             <h3 style="color: #4f46e5; font-size: 24px; margin: 0;">${otp}</h3>
           </div>
           <p style="color: #555; font-size: 14px; margin-top: 20px;">This OTP expires in 10 minutes. Please do not share it with anyone.</p>
-          <p style="color: #555; font-size: 14px; text-align: center;">&copy; 2025 3D Portfolio</p>
+          <p style="color: #555; font-size: 14px; text-align: center;">&copy; 2025 Ahmad Raza Khan. All rights reserved</p>
         </div>
       `,
     });
