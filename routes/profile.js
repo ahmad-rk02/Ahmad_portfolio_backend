@@ -17,7 +17,7 @@ export default function (verifyToken) {
   router.post("/", verifyToken, uploadAvatar.single("avatarFile"), async (req, res) => {
     try {
       const payload = req.body;
-      if (req.file) payload.avatar = req.file.path; // Cloudinary URL
+      if (req.file) payload.avatar = req.file.path; 
 
       const existing = await Profile.findOne();
       if (existing) {
@@ -37,7 +37,7 @@ export default function (verifyToken) {
   router.put("/:id", verifyToken, uploadAvatar.single("avatarFile"), async (req, res) => {
     try {
       const payload = req.body;
-      if (req.file) payload.avatar = req.file.path; // Cloudinary URL
+      if (req.file) payload.avatar = req.file.path; 
       const updated = await Profile.findByIdAndUpdate(req.params.id, payload, { new: true });
       res.json(updated);
     } catch (err) {

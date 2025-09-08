@@ -25,14 +25,25 @@ const transporter = nodemailer.createTransport({
 // Generate 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
-// Send OTP email
+// Send OTP email with styled HTML
 const sendOTP = async (email, otp) => {
   try {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Admin Verification OTP",
-      text: `Your OTP is: ${otp}. It expires in 10 minutes.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f9; border-radius: 10px;">
+          <h2 style="color: #333; text-align: center;">3D Portfolio Admin</h2>
+          <p style="color: #555; font-size: 16px;">Hello,</p>
+          <p style="color: #555; font-size: 16px;">Your one-time password (OTP) for verification is:</p>
+          <div style="background-color: #fff; padding: 15px; text-align: center; border-radius: 8px; border: 1px solid #ddd;">
+            <h3 style="color: #4f46e5; font-size: 24px; margin: 0;">${otp}</h3>
+          </div>
+          <p style="color: #555; font-size: 14px; margin-top: 20px;">This OTP expires in 10 minutes. Please do not share it with anyone.</p>
+          <p style="color: #555; font-size: 14px; text-align: center;">&copy; 2025 3D Portfolio</p>
+        </div>
+      `,
     });
     console.log(`✅ OTP sent to ${email}: ${otp}`);
   } catch (error) {
@@ -169,6 +180,49 @@ router.post("/verify-login", async (req, res) => {
     res.json({ token });
   } catch (err) {
     console.error("Verify login error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// STEP 5: Forgot Password (send OTP)
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const admin = await Admin.findOne({ email: { $regex: `^${email}$`, $options: "i" } });
+
+    if (!admin) return res.status(404).json({ message: "Email not found" });
+
+    const otp = generateOTP();
+    otps.set(email, { otp, expires: Date.now() + 10 * 60 * 1000 });
+
+    await sendOTP(email, otp);
+    res.json({ message: "OTP sent to email", email });
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// STEP 6: Verify OTP & Reset Password
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    const stored = otps.get(email);
+
+    if (!stored || stored.otp !== otp || Date.now() > stored.expires) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    const admin = await Admin.findOne({ email: { $regex: `^${email}$`, $options: "i" } });
+    if (!admin) return res.status(404).json({ message: "Email not found" });
+
+    admin.password = await bcrypt.hash(newPassword, 10);
+    await admin.save();
+
+    otps.delete(email);
+    res.json({ message: "Password reset successful" });
+  } catch (err) {
+    console.error("Reset password error:", err);
     res.status(500).json({ message: err.message });
   }
 });
