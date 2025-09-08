@@ -13,7 +13,7 @@ const router = express.Router();
 const otps = new Map();
 const pendingRegistrations = new Map();
 
-// ✅ Nodemailer setup with Gmail + App Password
+// Nodemailer setup with Gmail + App Password
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -34,7 +34,7 @@ const sendOTP = async (email, otp) => {
       subject: "Admin Verification OTP",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f9; border-radius: 10px;">
-          <h2 style="color: #333; text-align: center;">3D Portfolio Admin</h2>
+          <h2 style="color: #333; text-align: center;">Admin Authentication</h2>
           <p style="color: #555; font-size: 16px;">Hello,</p>
           <p style="color: #555; font-size: 16px;">Your one-time password (OTP) for verification is:</p>
           <div style="background-color: #fff; padding: 15px; text-align: center; border-radius: 8px; border: 1px solid #ddd;">
@@ -45,9 +45,9 @@ const sendOTP = async (email, otp) => {
         </div>
       `,
     });
-    console.log(`✅ OTP sent to ${email}: ${otp}`);
+    console.log(`OTP sent to ${email}: ${otp}`);
   } catch (error) {
-    console.error(`❌ Failed to send OTP to ${email}:`, error);
+    console.error(`Failed to send OTP to ${email}:`, error);
     throw new Error("Failed to send OTP");
   }
 };

@@ -16,12 +16,6 @@ dotenv.config();
 
 const app = express();
 
-// ✅ CORS setup
-const allowedOrigins = [
-  "http://localhost:5173",               
-];
-
-
 app.use(cors({
   origin: ["http://localhost:5173"],
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -31,7 +25,7 @@ app.use(cors({
 
 app.use(express.json());
 
-// ✅ Connect DB before handling requests
+// Connect DB before handling requests
 const connectDB = async () => {
   try {
     console.log("🔍 Trying to connect to MongoDB...");
@@ -42,9 +36,9 @@ const connectDB = async () => {
       useUnifiedTopology: true,
     });
 
-    console.log("✅ MongoDB connected successfully");
+    console.log("MongoDB connected successfully");
   } catch (err) {
-    console.error("❌ MongoDB connection failed:", err.message);
+    console.error("MongoDB connection failed:", err.message);
   }
 };
 
@@ -66,9 +60,9 @@ app.get("/", (req, res) => res.send("3D Portfolio API running 🚀"));
 app.get("/api/dbcheck", async (req, res) => {
   try {
     await mongoose.connection.db.admin().ping();
-    res.json({ status: "✅ MongoDB connected" });
+    res.json({ status: "MongoDB connected" });
   } catch (err) {
-    res.status(500).json({ status: "❌ MongoDB not connected", error: err.message });
+    res.status(500).json({ status: "MongoDB not connected", error: err.message });
   }
 });
 
