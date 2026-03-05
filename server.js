@@ -34,14 +34,19 @@ const connectDB = async () => {
     console.log("🔍 Trying to connect to MongoDB...");
     console.log("MONGO_URI:", process.env.MONGO_URI ? "Loaded ✅" : "Not Found ❌");
 
+    if (!process.env.MONGO_URI) {
+      console.error("❌ MONGO_URI is not defined in environment variables");
+      return;
+    }
+
     await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
 
-    console.log("MongoDB connected successfully");
+    console.log("✅ MongoDB connected successfully");
   } catch (err) {
-    console.error("MongoDB connection failed:", err.message);
+    console.error("❌ MongoDB connection failed:", err.message);
   }
 };
 
@@ -57,7 +62,16 @@ app.use("/api/projects", projectsRoutes(verifyToken));
 app.use("/api/achievements", achievementsRoutes(verifyToken));
 
 // Health check
-app.get("/", (req, res) => res.send("3D Portfolio API running 🚀"));
+app.get("/", (req, res) => {
+  const status = {
+    status: "API running 🚀",
+    mongoUri: process.env.MONGO_URI ? "configured" : "missing",
+    jwtSecret: process.env.JWT_SECRET ? "configured" : "missing",
+    emailUser: process.env.EMAIL_USER ? "configured" : "missing",
+    mongoConnection: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
+  };
+  res.json(status);
+});
 
 // Extra DB check endpoint (for testing on Vercel)
 app.get("/api/dbcheck", async (req, res) => {
