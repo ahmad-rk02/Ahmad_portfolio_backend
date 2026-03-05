@@ -17,13 +17,16 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: ["http://localhost:5173","https://ahmad-raza-khan-portfolio.netlify.app"],
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  origin: ["http://localhost:5173", "https://ahmad-raza-khan-portfolio.netlify.app"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 
 app.use(express.json());
+
+// Handle preflight requests
+app.options('*', cors());
 
 // Connect DB before handling requests
 const connectDB = async () => {
