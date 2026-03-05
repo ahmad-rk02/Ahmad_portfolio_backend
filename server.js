@@ -73,6 +73,26 @@ app.get("/", (req, res) => {
   res.json(status);
 });
 
+// Debug endpoint to check experience data
+app.get("/api/debug/experience", async (req, res) => {
+  try {
+    const Experience = (await import("./models/Experience.js")).default;
+    const experiences = await Experience.find().sort({ startDate: -1 });
+    res.json({
+      count: experiences.length,
+      experiences: experiences.map(exp => ({
+        role: exp.role,
+        company: exp.company,
+        startDate: exp.startDate,
+        endDate: exp.endDate,
+        duration: exp.duration
+      }))
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Extra DB check endpoint (for testing on Vercel)
 app.get("/api/dbcheck", async (req, res) => {
   try {
