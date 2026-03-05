@@ -59,14 +59,14 @@ const cleanupExpired = () => {
     if (now > data.expires) {
       otps.delete(email);
       pendingRegistrations.delete(email);
-      console.log(`🧹 Cleaned expired entry for ${email}`);
+      console.log(`Cleaned expired entry for ${email}`);
     }
   }
 };
 
 // --- Routes ---
 
-// Temporary clear (⚠️ remove in production)
+// Temporary clear (remove in production)
 router.get("/clear-pending", (req, res) => {
   otps.clear();
   pendingRegistrations.clear();
